@@ -3,10 +3,14 @@ import dotenv from "dotenv";
 import connectDb from "./config/db.js";
 
 import { createClient } from "redis";
+import userRoutes from "./routes/user.js";
+import { connectToRabbitMQ } from "./config/rabbitmq.js";
 
 dotenv.config();
 
 connectDb();
+
+connectToRabbitMQ();
 
 export const redisClient = createClient({
   url: process.env.REDIS_URL!,
@@ -18,6 +22,9 @@ redisClient
   .catch((error) => console.log(error));
 
 const app = express();
+
+app.use("api/v1", userRoutes);
+
 const port = process.env.PORT;
 app.listen(port, () => {
   console.log(`Server is running on the port ${port}`);
