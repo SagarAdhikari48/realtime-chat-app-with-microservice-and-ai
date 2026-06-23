@@ -1,0 +1,1 @@
+## Installed Concurrently dev dependencies to run the project side by side
