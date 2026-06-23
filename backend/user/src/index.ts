@@ -2,9 +2,20 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDb from "./config/db.js";
 
+import { createClient } from "redis";
+
 dotenv.config();
 
 connectDb();
+
+export const redisClient = createClient({
+  url: process.env.REDIS_URL!,
+});
+
+redisClient
+  .connect()
+  .then(() => console.log("connected top redis"))
+  .catch((error) => console.log(error));
 
 const app = express();
 const port = process.env.PORT;
