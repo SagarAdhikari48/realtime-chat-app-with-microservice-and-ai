@@ -1,6 +1,4 @@
 import amqp from "amqplib";
-import type { Connection, Channel } from "amqplib";
-
 let channel: amqp.Channel;
 
 export const connectToRabbitMQ = async () => {
