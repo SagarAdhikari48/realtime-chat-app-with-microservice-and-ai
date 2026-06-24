@@ -1,6 +1,12 @@
-import type { NextFunction, Request, Response } from "express";
-import { type IUser } from "../model/User.js";
-import jwt, { type JwtPayload } from "jsonwebtoken";
+import { Request, Response, NextFunction } from "express";
+import jwt, { JwtPayload } from "jsonwebtoken";
+
+interface IUser extends Document {
+  _id: string;
+  name: string;
+  email: string;
+}
+
 export interface AuthenticatedRequest extends Request {
   user?: IUser | null;
 }
@@ -13,10 +19,11 @@ export const isAuth = async (
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      res.status(401).json({
-        message: "Please Login - No auth Headers",
+      res.status(400).json({
+        message: "Please login - No auth headers",
       });
     }
+
     const token = authHeader?.split(" ")[1];
     const deodedValue = jwt.verify(
       token!,
@@ -31,10 +38,12 @@ export const isAuth = async (
     }
     req.user = deodedValue.user;
     next();
-    
   } catch (error) {
     res.status(401).json({
-      message: "Please Login - JWT ERROR",
+      message: "Please Login - Jwt Error: ",
+      error,
     });
   }
 };
+
+export default isAuth;
