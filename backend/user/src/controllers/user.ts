@@ -8,6 +8,12 @@ import type { AuthenticatedRequest } from "../middlewares/isAuth.js";
 
 export const loginUser = TryCatch(async (req, res) => {
   const { email } = req.body;
+  if(!email){
+    res.status(400).json({
+      message: "Email is required",
+    });
+    return;
+  }
   //Rate limit for a user can create single otp in one minutes using redis.
   const rateLimitKey = `otp:ratelimit:${email}`;
   const rateLimit = await redisClient.get(rateLimitKey);
@@ -35,10 +41,13 @@ export const loginUser = TryCatch(async (req, res) => {
     subject: "Your otp code",
     body: `Your OTP is ${otp}. It is valid for 5 minutes.`,
   };
+
   await publishToQueue("send-otp", message);
+
   res.status(200).json({
     message: "OTP sent to your email",
   });
+
 });
 
 export const verifyUser = TryCatch(async (req, res) => {
