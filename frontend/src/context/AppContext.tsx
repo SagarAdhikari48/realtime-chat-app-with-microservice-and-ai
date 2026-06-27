@@ -68,6 +68,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     } catch (error) {
       console.log(error);
       setLoading(false);
+    } finally {
+      setLoading(false);//this is not done then the screen will struct to the loading screen though user is authenticated.
     }
   }
 

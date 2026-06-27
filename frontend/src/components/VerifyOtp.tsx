@@ -7,9 +7,10 @@ import { useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useAppData, user_service } from "@/context/AppContext";
+import Loading from "./Loading";
 
 const VerifyOtp = () => {
-  const { isAuth, setIsAuth, setUser } = useAppData();
+  const { isAuth, setIsAuth, setUser, loading: userLoading } = useAppData();
   const [loading, setLoading] = useState<boolean>(false);
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
   const [error, setError] = useState<string>("");
@@ -91,6 +92,9 @@ const VerifyOtp = () => {
       });
       setOtp(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
+      setUser(data);
+      setIsAuth(true);
+      router.push("/chat");
     } catch (error: any) {
       console.log(error);
       setError(error.response.data.message);
@@ -115,7 +119,11 @@ const VerifyOtp = () => {
     }
   };
 
-  if (!isAuth) {
+  if (userLoading) return <Loading />;
+
+  //should not be able to access this page if user is already authenticated
+  //always at last
+  if (isAuth) {
     redirect("/chat");
   }
 
