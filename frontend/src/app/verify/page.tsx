@@ -5,6 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useRef } from "react";
 import { useState } from "react";
 import axios from "axios";
+import Cookies from "js-cookie";
+
+
 const VerifyPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
@@ -80,7 +83,19 @@ const VerifyPage = () => {
         otp: otpString,
       });
       alert(data.message);
-    } catch (error) {}
+      Cookies.set("token", data.token, {
+        expires: 15,
+        secure: false, // this is false because we host it in aws and the url from aws will http not https - otherwise it will be true
+        path: "/",
+      });
+      setOtp(["", "", "", "", "", ""]);
+      inputRefs.current[0]?.focus();
+    } catch (error: any) {
+      console.log(error);
+      setError(error.response.data.message);
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
