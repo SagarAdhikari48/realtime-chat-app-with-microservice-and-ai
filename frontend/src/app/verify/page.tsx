@@ -6,6 +6,7 @@ import React, { useEffect, useRef } from "react";
 import { useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { user_service } from "@/context/AppContext";
 
 const VerifyPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -77,7 +78,7 @@ const VerifyPage = () => {
     setLoading(true);
 
     try {
-      const { data } = await axios.post(`http://localhost:5001/api/v1/verify`, {
+      const { data } = await axios.post(`${user_service}/api/v1/verify`, {
         email,
         otp: otpString,
       });
@@ -101,7 +102,7 @@ const VerifyPage = () => {
     setResendLoading(true);
     setError("");
     try {
-      const { data } = await axios.post(`http://localhost/api/v1/login`, {
+      const { data } = await axios.post(`${user_service}/api/v1/login`, {
         email,
       });
       alert(data.message);
