@@ -1,12 +1,11 @@
 "use client";
 
-import { ArrowRight, Loader2, Lock } from "lucide-react";
+import { ArrowRight, ChevronLeft, Loader2, Lock } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useRef } from "react";
 import { useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
-
 
 const VerifyPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -97,11 +96,36 @@ const VerifyPage = () => {
       setLoading(false);
     }
   };
+
+  const handleResendOtp = async () => {
+    setResendLoading(true);
+    setError("");
+    try {
+      const { data } = await axios.post(`http://localhost/api/v1/login`, {
+        email,
+      });
+      alert(data.message);
+      setTimer(60);
+    } catch (error: any) {
+      setError(error.response.data.message);
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         <div className="bg-gray-800 border border-gray-700 rounded-lg p-8">
-          <div className="text-center mb-8">
+          <div className="text-center mb-8 relative">
+            <button
+              className="absolute top-0 left-0 p-2 text-gray-300"
+              onClick={() => {
+                router.push("login");
+              }}
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
             <div className="mx-auto w-20 h-20 bg-blue-600 rounded-lg flex items-center justify-center text-white text-2xl font-bold mb-6">
               <Lock size={40} className="text-white" />
             </div>
@@ -174,6 +198,7 @@ const VerifyPage = () => {
               <button
                 disabled={resendLoading}
                 className="text-blue-400 hover:text-blue-300 font:medium text-sm disabled: opacity-50"
+                onClick={handleResendOtp}
               >
                 {resendLoading ? "Sending..." : "Resend Code"}
               </button>
