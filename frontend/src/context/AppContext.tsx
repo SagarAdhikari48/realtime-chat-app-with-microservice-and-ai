@@ -1,6 +1,13 @@
 "use client";
-
-import { createContext, ReactNode, useContext, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import Cookies from "js-cookie";
+import axios from "axios";
 
 export const user_service = "http://localhost:5001";
 export const chat_service = "http://localhost:5004";
@@ -47,6 +54,26 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuth, setIsAuth] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  async function fetchUser() {
+    try {
+      const token = Cookies.get("token");
+      const { data } = await axios.get(`${user_service}/api/v1/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setUser(data);
+      setIsAuth(true);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
 
   return (
     <AppContext.Provider value={{ user, setUser, isAuth, setIsAuth, loading }}>
