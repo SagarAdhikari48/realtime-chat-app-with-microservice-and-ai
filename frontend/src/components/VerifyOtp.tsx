@@ -24,16 +24,17 @@ const VerifyOtp = () => {
   const email: string = searchParmas.get("email") || "";
 
   useEffect(() => {
+    if (!userLoading && isAuth) {
+      router.replace("/chat");
+    }
+
     if (timer > 0) {
       const interval = setInterval(() => {
         setTimer((prev) => prev - 1);
       }, 1000);
       return () => clearInterval(interval);
     }
-    if (!userLoading && isAuth) {
-      router.replace("/chat");
-    }
-  }, [timer, userLoading, isAuth, router]);
+  }, [userLoading, isAuth, router, timer]);
 
   const handleInputChange = (index: number, value: string): void => {
     if (value.length > 1) {

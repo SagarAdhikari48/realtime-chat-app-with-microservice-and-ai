@@ -56,20 +56,28 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   async function fetchUser() {
+    const token = Cookies.get("token");
+
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
     try {
-      const token = Cookies.get("token");
       const { data } = await axios.get(`${user_service}/api/v1/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+
       setUser(data);
       setIsAuth(true);
     } catch (error) {
       console.log(error);
-      setLoading(false);
+      setUser(null);
+      setIsAuth(false);
     } finally {
-      setLoading(false);//this is not done then the screen will struct to the loading screen though user is authenticated.
+      setLoading(false);
     }
   }
 
