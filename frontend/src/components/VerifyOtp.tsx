@@ -30,7 +30,10 @@ const VerifyOtp = () => {
       }, 1000);
       return () => clearInterval(interval);
     }
-  }, [timer]);
+    if (!userLoading && isAuth) {
+      router.replace("/chat");
+    }
+  }, [timer, userLoading, isAuth, router]);
 
   const handleInputChange = (index: number, value: string): void => {
     if (value.length > 1) {
@@ -124,7 +127,7 @@ const VerifyOtp = () => {
   //should not be able to access this page if user is already authenticated
   //always at last
   if (isAuth) {
-    redirect("/chat");
+    return null;
   }
 
   return (
