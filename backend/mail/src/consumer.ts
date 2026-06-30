@@ -47,6 +47,7 @@ export const startSendOtpConsumer = async () => {
           channel.ack(msg);
         } catch (error) {
           console.log("Failed to send OTP", error);
+          channel.ack(msg);
         }
       }
     });
