@@ -11,7 +11,14 @@ import Loading from "./Loading";
 import toast from "react-hot-toast";
 
 const VerifyOtp = () => {
-  const { isAuth, setIsAuth, setUser, loading: userLoading } = useAppData();
+  const {
+    isAuth,
+    setIsAuth,
+    setUser,
+    loading: userLoading,
+    fetchChats,
+    fetchUsers,
+  } = useAppData();
   const [loading, setLoading] = useState<boolean>(false);
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
   const [error, setError] = useState<string>("");
@@ -99,6 +106,10 @@ const VerifyOtp = () => {
       inputRefs.current[0]?.focus();
       setUser(data);
       setIsAuth(true);
+      //this should be called if the user logout and loggedin again the chats and user endpoint will throw error even it is logged in and seen only after reloading page.
+      // Thus to protect reloading page we need to fetch users and chats.
+      fetchChats();
+      fetchUsers();
       router.push("/chat");
     } catch (error: any) {
       console.log(error);
