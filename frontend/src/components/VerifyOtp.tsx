@@ -8,6 +8,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useAppData, user_service } from "@/context/AppContext";
 import Loading from "./Loading";
+import toast from "react-hot-toast";
 
 const VerifyOtp = () => {
   const { isAuth, setIsAuth, setUser, loading: userLoading } = useAppData();
@@ -88,7 +89,7 @@ const VerifyOtp = () => {
         email,
         otp: otpString,
       });
-      alert(data.message);
+      toast.success(data.message);
       Cookies.set("token", data.token, {
         expires: 15,
         secure: false, // this is false because we host it in aws and the url from aws will http not https - otherwise it will be true
@@ -114,7 +115,7 @@ const VerifyOtp = () => {
       const { data } = await axios.post(`${user_service}/api/v1/login`, {
         email,
       });
-      alert(data.message);
+      toast.success(data.message);
       setTimer(60);
     } catch (error: any) {
       setError(error.response.data.message);
