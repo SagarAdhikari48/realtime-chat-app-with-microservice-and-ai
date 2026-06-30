@@ -125,7 +125,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         },
       });
 
-      setUser(data);
+      setUsers(data);
     } catch (error) {}
   }
 
