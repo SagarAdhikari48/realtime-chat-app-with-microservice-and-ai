@@ -72,7 +72,7 @@ const MessageInput = ({
 
         <input
           type="text"
-          className="flex-1 bg-gray-700 rounded-lg text-white place-holder-gray-400"
+          className="flex-1 bg-gray-700 rounded-lg px-4 py-2 text-white place-holder-gray-400"
           placeholder={imageFile ? "Add a caption..." : "Type a message..."}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
