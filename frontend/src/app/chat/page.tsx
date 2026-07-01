@@ -1,12 +1,19 @@
 "use client";
 import ChatSidebar from "@/components/ChatSidebar";
 import Loading from "@/components/Loading";
-import { chat_service, useAppData, User, user_service } from "@/context/AppContext";
+import {
+  chat_service,
+  useAppData,
+  User,
+  user_service,
+} from "@/context/AppContext";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import Cookies from "js-cookie";
 import axios from "axios";
+import ChatHeader from "@/components/ChatHeader";
+import ChatMessages from "@/components/ChatMessages";
 
 export interface Message {
   //These should match exact spell as backend has
@@ -54,9 +61,33 @@ const ChatApp = () => {
     if (!isAuth && !loading) {
       router.push("/login");
     }
-  }, [isAuth, router, loading]);
+    if (selectedUser) {
+      fetchChat();
+    }
+  }, [isAuth, router, loading, selectedUser]);
 
   const handleLogout = async () => logoutUser();
+
+  async function fetchChat() {
+    const token = Cookies.get("token");
+    try {
+      const { data } = await axios.get(
+        `${chat_service}/api/v1/message/${selectedUser}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      setMessages(data.messages);
+      setUser(data.user);
+      await fetchChats();
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to load messages");
+    }
+  }
 
   async function createChat(u: User) {
     try {
@@ -70,11 +101,10 @@ const ChatApp = () => {
           },
         },
       );
-      toast.success("New chat created successfully")
+      toast.success("New chat created successfully");
       setSelectedUser(data.chatId);
       setShowAllUsers(false);
       await fetchChats();
-
     } catch (error) {
       toast.error("Failed to start chat");
     }
@@ -83,7 +113,7 @@ const ChatApp = () => {
   if (loading) return <Loading />;
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white relative overflow-hidden">
+    <div className="min-h-screen flex bg-gray-900 text-white relative overflow-hidden">
       <ChatSidebar
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
@@ -98,7 +128,19 @@ const ChatApp = () => {
         createChat={createChat}
       />
 
-      <div className="flex-1 flex flex-col justify-between p-4 backdrop-blur-xl bg-white/5 border-2/2 border-white/10"></div>
+      <div className="flex-1 flex flex-col justify-between p-4 backdrop-blur-xl bg-white/5 border-1 border-white/10">
+        <ChatHeader
+          user={user}
+          isTyping={isTyping}
+          setSidebarOpen={setSidebarOpen}
+        />
+
+        <ChatMessages
+          selectedUser={selectedUser}
+          messages={messages}
+          loggedInUser={loggedInUser}
+        />
+      </div>
     </div>
   );
 };
