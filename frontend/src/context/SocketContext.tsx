@@ -12,10 +12,12 @@ import { chat_service, useAppData } from "./AppContext";
 
 interface SocketContextType {
   socket: Socket | null;
+  onlineUsers: string[];
 }
 
 const SocketContext = createContext<SocketContextType>({
   socket: null,
+  onlineUsers: [],
 });
 
 interface ProviderProps {
@@ -25,13 +27,22 @@ interface ProviderProps {
 export const SocketProvider = ({ children }: ProviderProps) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const { user } = useAppData();
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
 
   useEffect(() => {
     if (!user?._id) return; // no user no connection
 
-    const newSocket = io(chat_service); //new conection for user chat service url - connection created with chat service
+    const newSocket = io(chat_service, {
+      query: {
+        userId: user._id,
+      },
+    }); //new conection for user chat service url - connection created with chat service
 
     setSocket(newSocket);
+
+    newSocket.on("getOnlineUser", (users: string[]) => {
+      setOnlineUsers(users);
+    });
 
     return () => {
       newSocket.disconnect();
@@ -39,7 +50,7 @@ export const SocketProvider = ({ children }: ProviderProps) => {
   }, [user?._id]);
 
   return (
-    <SocketContext.Provider value={{ socket }}>
+    <SocketContext.Provider value={{ socket, onlineUsers }}>
       {children}
     </SocketContext.Provider>
   );
