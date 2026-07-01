@@ -22,18 +22,20 @@ const ChatMessages = ({
     if (!messages) return [];
     const seen = new Set();
     return messages.filter((message) => {
-      if (seen.has(message._id)) {
+      if (seen.has(message?._id)) {
         return false;
       }
-      seen.add(message._id);
+      seen.add(message?._id);
       return true;
     });
   }, [messages]);
 
   useEffect(() => {
     ///automatically scroll the page is message seems filled or oveflowing!
+
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [selectedUser, uniqueMessage]);
+
   return (
     <div className="flex-1 overflow-hidden">
       <div className="h-full max-h-[calc(100vh-215px)] overflow-y-auto p-2 space-y-2 custom-scroll">
@@ -44,8 +46,11 @@ const ChatMessages = ({
         ) : (
           <>
             {uniqueMessage.map((e, i) => {
-              const isSentByMe = e.senderId === loggedInUser?._id;
-              const uniqueKey = `${e._id}-${i}`; //custom created unique key
+              console.log("event unique message:::= ", e);
+
+              const isSentByMe = e?.sender === loggedInUser?._id;
+              console.log("is sent by me:::= ", isSentByMe);
+              const uniqueKey = `${e?._id}-${i}`; //custom created unique key
 
               return (
                 <div
@@ -55,28 +60,30 @@ const ChatMessages = ({
                   <div
                     className={`rounded-lg p-3 max-w-sm ${isSentByMe ? "bg-blue-600 text-white" : "bg-gray-700 text-white"}`}
                   >
-                    {e.messageType === "image" && e.image && (
+                    {e?.messageType === "image" && e?.image && (
                       <div className="relative group">
                         <img
-                          src={e.image.url}
+                          src={e?.image?.url}
                           alt="shared image"
                           className="max-w-full h-auto rounded-lg"
                         />
                       </div>
                     )}
-                    {e.text && <p className="mt-1">{e.text}</p>}
+                    {e?.text && <p className="mt-1">{e?.text}</p>}
                   </div>
                   <div
-                    className={`flex items-c gap-1 text-xs text-gray-400 ${isSentByMe ? "pr-2 flex-row-reverse" : "pl-2"}`}
+                    className={`flex items-center gap-1 text-xs text-gray-400 ${isSentByMe ? "pr-2 flex-row-reverse" : "pl-2"}`}
                   >
-                    <span>{moment(e.createdAt).format("hh:mm A . MMM D")}</span>
+                    <span>
+                      {moment(e?.createdAt).format("hh:mm A . MMM D")}
+                    </span>
                     {isSentByMe && (
                       <div className="flex items-center ml-1">
-                        {e.seen ? (
+                        {e?.seen ? (
                           <div className="flex items-center gap-1 text-blue-400">
                             <CheckCheck className="w-3 h-3" />
-                            {e.seenAt && (
-                              <span>{moment(e.seenAt).format("hh:mm A")}</span>
+                            {e?.seenAt && (
+                              <span>{moment(e?.seenAt).format("hh:mm A")}</span>
                             )}
                           </div>
                         ) : (

@@ -14,12 +14,13 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import ChatHeader from "@/components/ChatHeader";
 import ChatMessages from "@/components/ChatMessages";
+import MessageInput from "@/components/MessageInput";
 
 export interface Message {
   //These should match exact spell as backend has
   _id: string;
   chatId: string;
-  senderId: string;
+  sender: string;
   text?: string;
   image?: {
     url: string;
@@ -67,6 +68,68 @@ const ChatApp = () => {
   }, [isAuth, router, loading, selectedUser]);
 
   const handleLogout = async () => logoutUser();
+
+  const handleMessageSend = async (e: any, imageFile?: File | null) => {
+    e.preventDefault();
+    if (!message.trim() && !imageFile) return;
+
+    if (!selectedUser) {
+      return;
+    }
+
+    //Socket work
+
+    const token = Cookies.get("token");
+    try {
+      const formData = new FormData();
+
+      formData.append("chatId", selectedUser);
+
+      if (message.trim()) {
+        formData.append("text", message);
+      }
+
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
+      const { data } = await axios.post(
+        `${chat_service}/api/v1/message`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+
+      setMessages((prev) => {
+        const currentMessages = prev || [];
+        const messageExists = currentMessages.some(
+          (msg) => msg?._id === data.message?._id,
+        );
+
+        if (!messageExists) {
+          return [...currentMessages, data.messages];
+        }
+        return currentMessages;
+      });
+
+      setMessage("");
+
+      const displayText = imageFile ? "📸 image" : message;
+    } catch (error: any) {
+      toast.error(error.response.data.message);
+    }
+  };
+
+  const handleTyping = (value: string) => {
+    setMessage(value);
+
+    if (!selectedUser) return;
+
+    //socket setup
+  };
 
   async function fetchChat() {
     const token = Cookies.get("token");
@@ -139,6 +202,13 @@ const ChatApp = () => {
           selectedUser={selectedUser}
           messages={messages}
           loggedInUser={loggedInUser}
+        />
+
+        <MessageInput
+          selectedUser={selectedUser}
+          message={message}
+          setMessage={handleTyping}
+          handleMessageSend={handleMessageSend}
         />
       </div>
     </div>
