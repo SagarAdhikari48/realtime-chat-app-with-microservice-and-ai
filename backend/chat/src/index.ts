@@ -4,12 +4,11 @@ import connectDb from "./config/db.js";
 import chatRoutes from "./routes/chat.js";
 import morgan from "morgan";
 import cors from "cors";
+import { app, server } from "./config/socket.js";
 
 dotenv.config();
 
 connectDb();
-
-const app = express();
 
 const port = process.env.PORT!;
 
@@ -19,6 +18,6 @@ app.use(morgan("dev"));
 
 app.use("/api/v1", chatRoutes);
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server is running on the port ${port}`);
 });
