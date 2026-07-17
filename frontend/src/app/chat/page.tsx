@@ -15,6 +15,7 @@ import axios from "axios";
 import ChatHeader from "@/components/ChatHeader";
 import ChatMessages from "@/components/ChatMessages";
 import MessageInput from "@/components/MessageInput";
+import { SocketData } from "@/context/SocketContext";
 
 export interface Message {
   //These should match exact spell as backend has
@@ -44,6 +45,9 @@ const ChatApp = () => {
     fetchChats,
     setChats,
   } = useAppData();
+
+  const { onlineUsers } = SocketData();
+  console.log("Online users:::= ", onlineUsers);
 
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [message, setMessage] = useState("");

@@ -113,7 +113,7 @@ const VerifyOtp = () => {
       router.push("/chat");
     } catch (error: any) {
       console.log(error);
-      setError(error.response.data.message);
+      setError(error.response?.data?.message);
     } finally {
       setLoading(false);
     }
