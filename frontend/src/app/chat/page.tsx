@@ -10,7 +10,6 @@ import {
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import Cookies from "js-cookie";
 import axios from "axios";
 import ChatHeader from "@/components/ChatHeader";
 import ChatMessages from "@/components/ChatMessages";
@@ -46,8 +45,20 @@ const ChatApp = () => {
     setChats,
   } = useAppData();
 
-  const { onlineUsers } = SocketData();
-  console.log("Online users:::= ", onlineUsers);
+  const { onlineUsers, newMessage } = SocketData();
+
+  // Append incoming socket messages to the current chat
+  useEffect(() => {
+    if (!newMessage) return;
+    // Only add if the message belongs to the currently open chat
+    if (newMessage.chatId !== selectedUser) return;
+    setMessages((prev) => {
+      const currentMessages = prev || [];
+      const alreadyExists = currentMessages.some((m) => m._id === newMessage._id);
+      if (alreadyExists) return currentMessages;
+      return [...currentMessages, newMessage];
+    });
+  }, [newMessage]);
 
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [message, setMessage] = useState("");
@@ -83,7 +94,7 @@ const ChatApp = () => {
 
     //Socket work
 
-    const token = Cookies.get("token");
+    const token = sessionStorage.getItem("token");
     try {
       const formData = new FormData();
 
@@ -114,7 +125,7 @@ const ChatApp = () => {
         );
 
         if (!messageExists) {
-          return [...currentMessages, data.messages];
+          return [...currentMessages, data.message];
         }
         return currentMessages;
       });
@@ -123,7 +134,8 @@ const ChatApp = () => {
 
       const displayText = imageFile ? "📸 image" : message;
     } catch (error: any) {
-      toast.error(error.response.data.message);
+      console.error("sendMessage error:", error?.response?.data || error);
+      toast.error(error?.response?.data?.message || "Failed to send message");
     }
   };
 
@@ -136,7 +148,7 @@ const ChatApp = () => {
   };
 
   async function fetchChat() {
-    const token = Cookies.get("token");
+    const token = sessionStorage.getItem("token");
     try {
       const { data } = await axios.get(
         `${chat_service}/api/v1/message/${selectedUser}`,
@@ -151,14 +163,14 @@ const ChatApp = () => {
       setUser(data.user);
       await fetchChats();
     } catch (error) {
-      console.log(error);
+      console.error("fetchChat error:", error);
       toast.error("Failed to load messages");
     }
   }
 
   async function createChat(u: User) {
     try {
-      const token = Cookies.get("token");
+      const token = sessionStorage.getItem("token");
       const { data } = await axios.post(
         `${chat_service}/api/v1/chat/new`,
         { userId: loggedInUser?._id, otherUserId: u._id },
@@ -168,12 +180,12 @@ const ChatApp = () => {
           },
         },
       );
-      toast.success("New chat created successfully");
       setSelectedUser(data.chatId);
       setShowAllUsers(false);
       await fetchChats();
-    } catch (error) {
-      toast.error("Failed to start chat");
+    } catch (error: any) {
+      console.error("createChat error:", error?.response?.data || error);
+      toast.error(error?.response?.data?.message || "Failed to start chat");
     }
   }
 

@@ -46,15 +46,12 @@ const ChatMessages = ({
         ) : (
           <>
             {uniqueMessage.map((e, i) => {
-              console.log("event unique message:::= ", e);
-
-              const isSentByMe = e?.sender === loggedInUser?._id;
-              console.log("is sent by me:::= ", isSentByMe);
+              const isSentByMe = e?.sender?.toString() === loggedInUser?._id?.toString();
               const uniqueKey = `${e?._id}-${i}`; //custom created unique key
 
               return (
                 <div
-                  className={`flex flex-col gap-1 mt-2 ${isSentByMe ? "items-end" : "items-start"} `}
+                  className={`flex flex-col gap-1 mt-2 w-full ${isSentByMe ? "items-end" : "items-start"} `}
                   key={uniqueKey}
                 >
                   <div

@@ -210,6 +210,20 @@ const ChatSidebar = ({
           </div>
           <span className="font-medium text-gray-300">Profile</span>
         </Link>
+
+        {/* Logged in user email */}
+        {loggedInUser?.email && (
+          <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-800/50">
+            <div className="p-1.5 bg-gray-700 rounded-lg">
+              <MessageCircle className="w-4 h-4 text-gray-300" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-gray-500">Logged in as</p>
+              <p className="text-sm text-gray-300 truncate">{loggedInUser.email}</p>
+            </div>
+          </div>
+        )}
+
         <button
           onClick={handleLogout}
           className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-600 transition-colors text-red-500 hover:text-white"
