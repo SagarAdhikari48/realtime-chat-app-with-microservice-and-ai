@@ -76,13 +76,19 @@ const ChatApp = () => {
   useEffect(() => {
     if (!isAuth && !loading) {
       router.push("/login");
+      return; // don't do anything else after logout
     }
-    if (selectedUser) {
+    if (isAuth && selectedUser) {
       fetchChat();
     }
   }, [isAuth, router, loading, selectedUser]);
 
-  const handleLogout = async () => logoutUser();
+  const handleLogout = async () => {
+    setSelectedUser(null);
+    setMessages(null);
+    setUser(null);
+    await logoutUser();
+  };
 
   const handleMessageSend = async (e: any, imageFile?: File | null) => {
     e.preventDefault();
