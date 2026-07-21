@@ -22,6 +22,7 @@ export const isAuth = async (
       res.status(400).json({
         message: "Please login - No auth headers",
       });
+      return;
     }
 
     const token = authHeader?.split(" ")[1];
