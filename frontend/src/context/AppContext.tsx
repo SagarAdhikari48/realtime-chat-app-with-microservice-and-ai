@@ -6,7 +6,6 @@ import {
   useEffect,
   useState,
 } from "react";
-import Cookies from "js-cookie";
 import axios from "axios";
 
 import toast, { Toaster } from "react-hot-toast";
@@ -65,7 +64,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   async function fetchUser() {
-    const token = Cookies.get("token");
+    const token = sessionStorage.getItem("token");
 
     if (!token) {
       setLoading(false);
@@ -91,7 +90,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   }
 
   async function logoutUser() {
-    Cookies.remove("token");
+    sessionStorage.removeItem("token");
     setUser(null);
     setIsAuth(false);
     toast.success("User logged out!");
@@ -100,7 +99,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [chats, setChats] = useState<Chats[] | null>(null);
 
   async function fetchChats() {
-    const token = Cookies.get("token");
+    const token = sessionStorage.getItem("token");
 
     try {
       const { data } = await axios.get(`${chat_service}/api/v1/chat/all`, {
@@ -116,7 +115,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [users, setUsers] = useState<User[] | null>(null);
 
   async function fetchUsers() {
-    const token = Cookies.get("token");
+    const token = sessionStorage.getItem("token");
 
     try {
       const { data } = await axios.get(`${user_service}/api/v1/user/all`, {

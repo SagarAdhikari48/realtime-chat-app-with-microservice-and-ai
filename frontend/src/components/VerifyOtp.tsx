@@ -5,7 +5,7 @@ import { redirect, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useRef } from "react";
 import { useState } from "react";
 import axios from "axios";
-import Cookies from "js-cookie";
+// token stored in sessionStorage so each browser tab has its own session
 import { useAppData, user_service } from "@/context/AppContext";
 import Loading from "./Loading";
 import toast from "react-hot-toast";
@@ -97,14 +97,10 @@ const VerifyOtp = () => {
         otp: otpString,
       });
       toast.success(data.message);
-      Cookies.set("token", data.token, {
-        expires: 15,
-        secure: false, // this is false because we host it in aws and the url from aws will http not https - otherwise it will be true
-        path: "/",
-      });
+      sessionStorage.setItem("token", data.token);
       setOtp(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
-      setUser(data);
+      setUser(data.user);
       setIsAuth(true);
       //this should be called if the user logout and loggedin again the chats and user endpoint will throw error even it is logged in and seen only after reloading page.
       // Thus to protect reloading page we need to fetch users and chats.
