@@ -4,11 +4,14 @@ import { AuthenticatedRequest } from "../middlewares/isAuth.js";
 import { Chat } from "../models/Chat.js";
 import { Messages } from "../models/Messages.js";
 import axios from "axios";
+import { io, getReceiverSocketId } from "../config/socket.js";
 
 export const createNewChat = TryCatch(
   async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user?._id;
     const { otherUserId } = req.body;
+
+    console.log("[createNewChat] userId:", userId, "otherUserId:", otherUserId);
 
     if (!otherUserId) {
       res.status(400).json({
@@ -99,6 +102,8 @@ export const sendMessage = TryCatch(async (req: AuthenticatedRequest, res) => {
   const senderId = req.user?._id;
   const { chatId, text } = req.body;
   const imageFile = req.file;
+
+  console.log("[sendMessage] senderId:", senderId, "chatId:", chatId, "text:", text);
   //sender id check 401 unauthorized
   if (!senderId) {
     res.status(401).json({
@@ -157,7 +162,7 @@ export const sendMessage = TryCatch(async (req: AuthenticatedRequest, res) => {
   //Create message data
   let messageData: any = {
     chatId: chatId,
-    sender: senderId,
+    sender: senderId.toString(),
     seen: false,
     seenAt: undefined,
   };
@@ -196,7 +201,11 @@ export const sendMessage = TryCatch(async (req: AuthenticatedRequest, res) => {
     { new: true },
   ); // to update new: true
 
-  // Emit socket here:
+  // Emit socket to the receiver in real time
+  const receiverSocketId = getReceiverSocketId(otherUserId.toString());
+  if (receiverSocketId) {
+    io.to(receiverSocketId).emit("newMessage", savedMessage);
+  }
 
   //Updated  response
   res.status(201).json({
@@ -233,7 +242,7 @@ export const getMessagesByChat = TryCatch(
       return;
     }
     const isUserInChat = chat?.users?.some(
-      (userId) => userId.toString() === userId.toString(),
+      (id) => id.toString() === userId.toString(),
     );
 
     if (!isUserInChat) {
@@ -262,7 +271,7 @@ export const getMessagesByChat = TryCatch(
     );
 
     const messages = await Messages.find({ chatId }).sort({ createdAt: 1 });
-    const otherUserId = chat.users.find((id) => id !== userId);
+    const otherUserId = chat.users.find((id) => id.toString() !== userId.toString());
 
     try {
       const { data } = await axios.get(
