@@ -16,6 +16,10 @@ const io = new Server(server, {
 
 const userSocketMap: Record<string, string> = {};
 
+export function getReceiverSocketId(userId: string): string | undefined {
+  return userSocketMap[userId];
+}
+
 io.on("connection", (socket: Socket) => {
   console.log("User connected", socket.id);
 
@@ -30,6 +34,10 @@ io.on("connection", (socket: Socket) => {
 
   socket.on("disconnect", () => {
     console.log("User Disconnected", socket.id);
+    if (userId && userId !== "undefined") {
+      delete userSocketMap[userId];
+    }
+    io.emit("getOnlineUser", Object.keys(userSocketMap));
   });
 
   socket.on("connect_error", () => {
