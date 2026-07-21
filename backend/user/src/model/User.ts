@@ -19,6 +19,8 @@ const schema: Schema<IUser> = new Schema(
       type: String,
       required: true,
       unique: true,
+      lowercase: true,
+      trim: true,
     },
   },
   {

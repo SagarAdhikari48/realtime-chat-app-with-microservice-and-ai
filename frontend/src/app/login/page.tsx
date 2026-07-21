@@ -20,10 +20,10 @@ const LoginPage = () => {
     setLoading(true);
     try {
       const { data } = await axios.post(`${user_service}/api/v1/login`, {
-        email,
+        email: email.trim().toLowerCase(),
       });
       toast.success(data?.message);
-      router.push(`/verify?email=${email}`);
+      router.push(`/verify?email=${email.trim().toLowerCase()}`);
     } catch (error: any) {
       toast.error(error.response?.data?.message);
     } finally {

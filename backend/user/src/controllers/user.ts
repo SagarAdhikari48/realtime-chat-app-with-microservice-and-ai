@@ -7,7 +7,8 @@ import { User } from "../model/User.js";
 import type { AuthenticatedRequest } from "../middlewares/isAuth.js";
 
 export const loginUser = TryCatch(async (req, res) => {
-  const { email } = req.body;
+  const { email: rawEmail } = req.body;
+  const email = rawEmail?.trim().toLowerCase();
   if(!email){
     res.status(400).json({
       message: "Email is required",
@@ -51,7 +52,8 @@ export const loginUser = TryCatch(async (req, res) => {
 });
 
 export const verifyUser = TryCatch(async (req, res) => {
-  const { email, otp: enteredOtp } = req.body;
+  const { email: rawEmail, otp: enteredOtp } = req.body;
+  const email = rawEmail?.trim().toLowerCase();
 
   if (!email || !enteredOtp) {
     res.status(400).json({
