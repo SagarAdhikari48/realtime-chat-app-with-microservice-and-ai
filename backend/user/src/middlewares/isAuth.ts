@@ -16,6 +16,7 @@ export const isAuth = async (
       res.status(401).json({
         message: "Please Login - No auth Headers",
       });
+      return;
     }
     const token = authHeader?.split(" ")[1];
     const deodedValue = jwt.verify(
