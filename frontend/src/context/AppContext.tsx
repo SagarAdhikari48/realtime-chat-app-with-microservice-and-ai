@@ -100,6 +100,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   async function fetchChats() {
     const token = sessionStorage.getItem("token");
+    if (!token) return;
 
     try {
       const { data } = await axios.get(`${chat_service}/api/v1/chat/all`, {
@@ -116,6 +117,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   async function fetchUsers() {
     const token = sessionStorage.getItem("token");
+    if (!token) return;
 
     try {
       const { data } = await axios.get(`${user_service}/api/v1/user/all`, {
